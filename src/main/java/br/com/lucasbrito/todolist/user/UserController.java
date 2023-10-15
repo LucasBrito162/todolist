@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -26,6 +28,11 @@ public class UserController {
             // Se o usuário já existe, retornar uma resposta de erro com status 400 (Bad Request)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário já existe");
         }
+
+        var passwordHashred = BCrypt.withDefaults().hashToString(12, userModel.getPassword().toCharArray());
+        userModel.setPassword(passwordHashred);
+
+
         // Se o usuário não existe, criar um novo usuário no repositório
         var userCreated =  this.userRepository.save(userModel);
         // Retornar uma resposta de sucesso com status 201 (Created) e o usuário criado
